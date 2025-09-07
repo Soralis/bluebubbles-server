@@ -55,7 +55,7 @@ if (!gotTheLock) {
         await new Promise<void>((resolve) => {
             server.on("ready", async () => {
                 // Set server name if not already set
-                const serverName = await server.repo.getConfig("server_name");
+                const serverName = server.repo.getConfig("server_name");
                 if (!serverName) {
                     const adjectives = ["Blue", "Swift", "Quick", "Bright", "Clear", "Sharp", "Fine", "Prime", "Ultra", "Super", "Show"];
                     const nouns = ["Bubbles", "Messages", "Chat", "Talk", "Connect", "Link", "Sync", "Flow", "Wave", "Pulse", "Lift"];
@@ -63,6 +63,11 @@ if (!gotTheLock) {
                     const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
                     const randomName = `${randomAdjective} ${randomNoun}`;
                     await server.repo.setConfig("server_name", randomName);
+                }
+                let computerId = server.repo.getConfig("computer_id");
+                if (!computerId) {
+                    let computerId = server.computerIdentifier
+                    await server.repo.setConfig("computer_id", computerId);
                 }
                 
                 // Register outgoing webhooks

@@ -57,4 +57,5 @@ export const DEFAULT_DB_ITEMS: { [key: string]: () => any } = {
     open_findmy_on_startup: () => 1,
     auto_lock_mac: () => 0,
     server_name: () => "",
+    computer_id: () => "",
 };

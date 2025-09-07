@@ -1035,7 +1035,10 @@ class BlueBubblesServer extends EventEmitter {
                 // Emit the new server event no matter what
                 let serverAddress = nextConfig.server_address as string;
                 let server_name = nextConfig.server_name as string;
-                let data = { address: serverAddress, name: server_name,  };
+                let computer_id = nextConfig.computer_id as string;
+                console.log("NEXT CONFIG", nextConfig);
+                let data = { url: serverAddress, server_name: server_name,  computer_id: computer_id };
+                console.log("SERVER ADDRESS CHANGED", data);
                 await this.emitMessage(NEW_SERVER, data, "high");
                 await this.fcm?.setServerUrl(true);
             }
