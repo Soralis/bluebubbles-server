@@ -1033,7 +1033,10 @@ class BlueBubblesServer extends EventEmitter {
             ) {
                 this.logger.debug("Dispatching server URL update from config change");
                 // Emit the new server event no matter what
-                await this.emitMessage(NEW_SERVER, nextConfig.server_address, "high");
+                let serverAddress = nextConfig.server_address as string;
+                let server_name = nextConfig.server_name as string;
+                let data = { address: serverAddress, name: server_name,  };
+                await this.emitMessage(NEW_SERVER, data, "high");
                 await this.fcm?.setServerUrl(true);
             }
         } catch (ex: any) {
