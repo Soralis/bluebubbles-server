@@ -6,9 +6,9 @@ import {
     Stack,
     ListItem,
     UnorderedList,
-    useColorModeValue,
-    keyframes
+    useColorModeValue
 } from '@chakra-ui/react';
+import { keyframes } from '@emotion/react';
 import { BiRefresh } from 'react-icons/bi';
 import { getPrivateApiStatus } from '../utils/IpcUtils';
 

@@ -1,5 +1,4 @@
-import { Input, InputGroup, InputGroupProps } from '@chakra-ui/input';
-import { Button, ButtonProps, InputRightAddon } from '@chakra-ui/react';
+import { Input, InputGroup, InputGroupProps, Button, ButtonProps, InputRightAddon } from '@chakra-ui/react';
 import React from 'react';
 import PropTypes from 'prop-types';
 

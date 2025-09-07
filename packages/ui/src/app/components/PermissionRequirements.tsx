@@ -13,9 +13,9 @@ import {
     PopoverHeader,
     PopoverTrigger,
     UnorderedList,
-    useColorModeValue,
-    keyframes
+    useColorModeValue
 } from '@chakra-ui/react';
+import { keyframes } from '@emotion/react';
 import { BiRefresh } from 'react-icons/bi';
 import { useAppSelector } from '../hooks';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
