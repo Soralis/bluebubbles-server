@@ -31,7 +31,7 @@ const parsedArgs: Record<string, any> = { ...cfg, ...args };
 let isHandlingExit = false;
 
 // Initialize the server
-Server(parsedArgs, null);
+const server = Server(parsedArgs, null);
 const log = getLogger("Main");
 
 // Only 1 instance is allowed
@@ -41,30 +41,35 @@ if (!gotTheLock) {
     app.exit(0);
 } else {
     app.on("second-instance", (_, __, ___) => {
-        if (Server().window) {
-            if (Server().window.isMinimized()) Server().window.restore();
-            Server().window.focus();
+        if (server.window) {
+            if (server.window.isMinimized()) server.window.restore();
+            server.window.focus();
         }
     });
 
-// Start the Server() when the app is ready
+    // Start the server when the app is ready
     app.whenReady().then(async () => {
-        // Set server name if not already set
-        const serverName = Server().repo.getConfig("server_name") as string;
-        if (!serverName) {
-            const adjectives = ["Blue", "Swift", "Quick", "Bright", "Clear", "Sharp", "Fine", "Prime", "Ultra", "Super", "Show"];
-            const nouns = ["Bubbles", "Messages", "Chat", "Talk", "Connect", "Link", "Sync", "Flow", "Wave", "Pulse", "Lift"];
-            const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
-            const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
-            const randomName = `${randomAdjective} ${randomNoun}`;
-            await Server().repo.setConfig("server_name", randomName);
-        }
+        server.start();
         
-        // Register outgoing webhooks
-        await Server().repo.addWebhook("https://showlift-8378.onrender.com/bluebubbles/newServer", [{ label: "New Server URL", value: "*" }]);
-        
-        // Start the server
-        Server().start();
+        // Wait for server to be ready before accessing repo
+        await new Promise<void>((resolve) => {
+            server.on("ready", async () => {
+                // Set server name if not already set
+                const serverName = await server.repo.getConfig("server_name");
+                if (!serverName) {
+                    const adjectives = ["Blue", "Swift", "Quick", "Bright", "Clear", "Sharp", "Fine", "Prime", "Ultra", "Super", "Show"];
+                    const nouns = ["Bubbles", "Messages", "Chat", "Talk", "Connect", "Link", "Sync", "Flow", "Wave", "Pulse", "Lift"];
+                    const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+                    const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
+                    const randomName = `${randomAdjective} ${randomNoun}`;
+                    await server.repo.setConfig("server_name", randomName);
+                }
+                
+                // Register outgoing webhooks
+                await server.repo.addWebhook("https://showlift-8378.onrender.com/bluebubbles/newServer", [{ label: "New Server URL", value: "*" }]);
+                resolve();
+            });
+        });
     });
 }
 

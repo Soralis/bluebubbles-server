@@ -28,7 +28,7 @@ import {
     ImageMetadata,
     ImageMetadataKeys
 } from "./types";
-import { uuidv4 } from "@firebase/util";
+const crypto = require("crypto");
 
 const FindProcess = require("find-process");
 const { rimrafSync } = require("rimraf");
@@ -208,7 +208,7 @@ export class FileSystem {
      */
     static copyAttachment(originalPath: string, name: string, method = "apple-script"): string {
         // Generate a random folder to put it in. This is so we don't have file name overlap
-        const guid = uuidv4();
+        const guid = crypto.randomUUID();
         const dir = FileSystem.getAttachmentDirectory(method);
         if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 

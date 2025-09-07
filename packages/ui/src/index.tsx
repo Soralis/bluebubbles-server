@@ -1,11 +1,4 @@
-// Conditionally import ipcRenderer only in Electron environment
-const ipcRenderer = (() => {
-    try {
-        return window.require ? window.require('electron').ipcRenderer : null;
-    } catch (e) {
-        return null;
-    }
-})();
+import { ipcRenderer } from 'electron';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 
@@ -114,57 +107,54 @@ getWebhooks().then(hooks => {
     store.dispatch(addAllWebhooks(hooks));
 });
 
-// Only set up IPC listeners if ipcRenderer is available (Electron environment)
-if (ipcRenderer) {
-    ipcRenderer.on('new-log', (_: any, data: any) => {
-        store.dispatch(addLog({
-            id: String(getRandomInt(999999999)),
-            message: String(data.message),
-            type: data.type,
-            timestamp: new Date()
-        }));
-    });
+ipcRenderer.on('new-log', (_: any, data: any) => {
+    store.dispatch(addLog({
+        id: String(getRandomInt(999999999)),
+        message: String(data.message),
+        type: data.type,
+        timestamp: new Date()
+    }));
+});
 
-    ipcRenderer.on('config-update', (_: any, cfg: any) => {
-        if (!cfg) return;
+ipcRenderer.on('config-update', (_: any, cfg: any) => {
+    if (!cfg) return;
 
-        const items: Array<ConfigItem> = [];
-        for (const key of Object.keys(cfg)) {
-            items.push({ name: key, value: cfg[key], saveToDb: false });
-        }
+    const items: Array<ConfigItem> = [];
+    for (const key of Object.keys(cfg)) {
+        items.push({ name: key, value: cfg[key], saveToDb: false });
+    }
 
-        store.dispatch(setConfigBulk(items));
-    });
+    store.dispatch(setConfigBulk(items));
+});
 
-    ipcRenderer.on('new-alert', (_: any, alert: any) => {
-        if (!alert?.value || !alert?.type) return;
+ipcRenderer.on('new-alert', (_: any, alert: any) => {
+    if (!alert?.value || !alert?.type) return;
 
-        store.dispatch(addAlert({
-            id: alert?.id,
-            message: alert.value,
-            type: alert.type,
-            timestamp: alert?.created ?? new Date(),
-            read: alert?.isRead ?? false
-        }));
-    });
+    store.dispatch(addAlert({
+        id: alert?.id,
+        message: alert.value,
+        type: alert.type,
+        timestamp: alert?.created ?? new Date(),
+        read: alert?.isRead ?? false
+    }));
+});
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    ipcRenderer.on('refresh-alerts', (_: any, __: any) => {
-        loadAlerts(true);
-    });
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ipcRenderer.on('refresh-alerts', (_: any, __: any) => {
+    loadAlerts(true);
+});
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    ipcRenderer.on('update-available', (_: any, data: any) => {
-        store.dispatch(setConfig({
-            name: 'update_available',
-            value: {
-                version: data,
-                show: true
-            },
-            saveToDb: false
-        }));
-    });
-}
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ipcRenderer.on('update-available', (_: any, data: any) => {
+    store.dispatch(setConfig({
+        name: 'update_available',
+        value: {
+            version: data,
+            show: true
+        },
+        saveToDb: false
+    }));
+});
 
 const domNode = document.getElementById('root')!;
 const root = createRoot(domNode);
