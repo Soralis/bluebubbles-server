@@ -1,10 +1,28 @@
 import { ScheduledMessageItem } from 'app/components/tables/ScheduledMessagesTable';
-import { ipcRenderer } from 'electron';
 import { MultiSelectValue } from '../types';
 import { showErrorToast, showSuccessToast } from './ToastUtils';
 
+// Conditionally import ipcRenderer only in Electron environment
+const ipcRenderer = (() => {
+    try {
+        return window.require ? window.require('electron').ipcRenderer : null;
+    } catch (e) {
+        return null;
+    }
+})();
+
+// Helper function to handle IPC calls with fallbacks for browser environment
+const safeIpcInvoke = async (channel: string, ...args: any[]): Promise<any> => {
+    if (ipcRenderer) {
+        return await ipcRenderer.invoke(channel, ...args);
+    }
+    // Return mock data or null for browser environment
+    console.warn(`IPC call '${channel}' not available in browser environment`);
+    return null;
+};
+
 export const getConfig = async () => {
-    return await ipcRenderer.invoke('get-config');
+    return await safeIpcInvoke('get-config');
 };
 
 export type FcmConfig = {
@@ -13,8 +31,8 @@ export type FcmConfig = {
 };
 
 export const getFcmConfig = async (): Promise<FcmConfig> => {
-    const client = await ipcRenderer.invoke('get-fcm-client');
-    const server = await ipcRenderer.invoke('get-fcm-server');
+    const client = await safeIpcInvoke('get-fcm-client');
+    const server = await safeIpcInvoke('get-fcm-server');
     return {
         fcm_client: client,
         fcm_server: server
@@ -22,77 +40,77 @@ export const getFcmConfig = async (): Promise<FcmConfig> => {
 };
 
 export const getEnv = async () => {
-    return await ipcRenderer.invoke('get-env');
+    return await safeIpcInvoke('get-env');
 };
 
 export const getDevices = async () => {
-    return await ipcRenderer.invoke('get-devices');
+    return await safeIpcInvoke('get-devices');
 };
 
 export const getAlerts = async () => {
-    return await ipcRenderer.invoke('get-alerts');
+    return await safeIpcInvoke('get-alerts');
 };
 
 export const openLogLocation = async () => {
-    return await ipcRenderer.invoke('open-log-location');
+    return await safeIpcInvoke('open-log-location');
 };
 
 export const openAppLocation = async () => {
-    return await ipcRenderer.invoke('open-app-location');
+    return await safeIpcInvoke('open-app-location');
 };
 
 export const restartViaTerminal = async () => {
-    return await ipcRenderer.invoke('restart-via-terminal');
+    return await safeIpcInvoke('restart-via-terminal');
 };
 
 export const restartServices = async () => {
-    return await ipcRenderer.invoke('hot-restart');
+    return await safeIpcInvoke('hot-restart');
 };
 
 export const fullRestart = async () => {
-    return await ipcRenderer.invoke('full-restart');
+    return await safeIpcInvoke('full-restart');
 };
 
 export const clearDevices = async () => {
-    return await ipcRenderer.invoke('purge-devices');
+    return await safeIpcInvoke('purge-devices');
 };
 
 export const clearEventCache = async () => {
-    return await ipcRenderer.invoke('purge-event-cache');
+    return await safeIpcInvoke('purge-event-cache');
 };
 
 export const getPrivateApiRequirements = async () => {
-    return await ipcRenderer.invoke('get-private-api-requirements');
+    return await safeIpcInvoke('get-private-api-requirements');
 };
 
 export const checkPermissions = async () => {
-    return await ipcRenderer.invoke('check-permissions');
+    return await safeIpcInvoke('check-permissions');
 };
 
 export const getWebhooks = async () => {
-    return await ipcRenderer.invoke('get-webhooks');
+    return await safeIpcInvoke('get-webhooks');
 };
 
 export const createWebhook = async (payload: { url: string, events: Array<MultiSelectValue> }) => {
-    return await ipcRenderer.invoke('create-webhook', payload);
+    return await safeIpcInvoke('create-webhook', payload);
 };
 
 export const deleteWebhook = async ({ url = null, id = null }: { url?: string | null, id?: number | null }) => {
-    return await ipcRenderer.invoke('delete-webhook', { url, id });
+    return await safeIpcInvoke('delete-webhook', { url, id });
 };
 
 export const updateWebhook = async ({ id, url, events }: { id: number, url?: string, events?: Array<MultiSelectValue> }) => {
-    return await ipcRenderer.invoke('update-webhook', { id, url, events });
+    return await safeIpcInvoke('update-webhook', { id, url, events });
 };
 
 export const reinstallHelperBundle = async () => {
-    const res = await ipcRenderer.invoke('reinstall-helper-bundle');
-    if (res.success) {
+    const res = await safeIpcInvoke('reinstall-helper-bundle');
+    if (res?.success) {
         showSuccessToast({
             id: 'settings',
             description: res.message
         });
-    } else {
+    } else if (res) {
         showErrorToast({
             id: 'settings',
             description: res.message
@@ -101,79 +119,77 @@ export const reinstallHelperBundle = async () => {
 };
 
 export const syncInvokeIpc = async (event: string, data: any = null): Promise<any> => {
-    return new Promise((resolve, reject) => {
-        ipcRenderer.invoke(event, data).then(resolve).catch(reject);
-    });
+    return await safeIpcInvoke(event, data);
 };
 
 export const openFullDiskPrefs = async () => {
-    return await ipcRenderer.invoke('open-fulldisk-preferences');
+    return await safeIpcInvoke('open-fulldisk-preferences');
 };
 
 export const openAccessibilityPrefs = async () => {
-    return await ipcRenderer.invoke('open-accessibility-preferences');
+    return await safeIpcInvoke('open-accessibility-preferences');
 };
 
 export const getPrivateApiStatus = async () => {
-    return await ipcRenderer.invoke('get-private-api-status');
+    return await safeIpcInvoke('get-private-api-status');
 };
 
 export const getAttachmentCacheInfo = async () => {
-    return await ipcRenderer.invoke('get-attachment-cache-info');
+    return await safeIpcInvoke('get-attachment-cache-info');
 };
 
 export const clearAttachmentCache = async () => {
-    return await ipcRenderer.invoke('clear-attachment-caches');
+    return await safeIpcInvoke('clear-attachment-caches');
 };
 
 export const deleteScheduledMessage = async (id: number) => {
-    return await ipcRenderer.invoke('delete-scheduled-message', id);
+    return await safeIpcInvoke('delete-scheduled-message', id);
 };
 
 export const deleteScheduledMessages = async () => {
-    return await ipcRenderer.invoke('delete-scheduled-messages');
+    return await safeIpcInvoke('delete-scheduled-messages');
 };
 
 export const createScheduledMessage = async (message: ScheduledMessageItem) => {
-    return await ipcRenderer.invoke('create-scheduled-message', message);
+    return await safeIpcInvoke('create-scheduled-message', message);
 };
 
 export const getBinaryPath = async () => {
-    return await ipcRenderer.invoke('get-binary-path');
+    return await safeIpcInvoke('get-binary-path');
 };
 
 export const installUpdate = async () => {
-    return await ipcRenderer.invoke('install-update');
+    return await safeIpcInvoke('install-update');
 };
 
 export const getFirebaseOauthUrl = async () => {
-    return await ipcRenderer.invoke('get-firebase-oauth-url');
+    return await safeIpcInvoke('get-firebase-oauth-url');
 };
 
 export const getContactsOauthUrl = async () => {
-    return await ipcRenderer.invoke('get-contacts-oauth-url');
+    return await safeIpcInvoke('get-contacts-oauth-url');
 };
 
 export const restartOauthService = async () => {
-    return await ipcRenderer.invoke('restart-oauth-service');
+    return await safeIpcInvoke('restart-oauth-service');
 };
 
 export const getCurrentPermissions = async () => {
-    return await ipcRenderer.invoke('get-current-permissions');
+    return await safeIpcInvoke('get-current-permissions');
 };
 
 export const saveLanUrl = async () => {
-    return await ipcRenderer.invoke('save-lan-url');
+    return await safeIpcInvoke('save-lan-url');
 };
 
 export const registerZrokEmail = async (email: string) => {
-    return await ipcRenderer.invoke('register-zrok-email', email);
+    return await safeIpcInvoke('register-zrok-email', email);
 };
 
 export const setZrokToken = async (token: string) => {
-    return await ipcRenderer.invoke('set-zrok-token', token);
+    return await safeIpcInvoke('set-zrok-token', token);
 };
 
 export const disableZrok = async () => {
-    return await ipcRenderer.invoke('disable-zrok');
+    return await safeIpcInvoke('disable-zrok');
 };

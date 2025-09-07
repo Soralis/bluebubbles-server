@@ -6,9 +6,9 @@ import {
     Stack,
     ListItem,
     UnorderedList,
-    useColorModeValue,
-    keyframes
+    useColorModeValue
 } from '@chakra-ui/react';
+import { keyframes } from '@emotion/react';
 import { BiRefresh, BiTrash } from 'react-icons/bi';
 import { clearAttachmentCache, getAttachmentCacheInfo } from '../utils/IpcUtils';
 import { showErrorToast, showSuccessToast } from 'app/utils/ToastUtils';
