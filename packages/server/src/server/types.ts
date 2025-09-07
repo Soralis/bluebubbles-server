@@ -4,6 +4,7 @@ export type ServerMetadataResponse = {
     computer_id: string;
     os_version: string;
     server_version: string;
+    server_name: string;
     private_api: boolean;
     helper_connected: boolean;
     proxy_service: string;

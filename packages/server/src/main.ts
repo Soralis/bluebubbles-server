@@ -47,8 +47,23 @@ if (!gotTheLock) {
         }
     });
 
-    // Start the Server() when the app is ready
-    app.whenReady().then(() => {
+// Start the Server() when the app is ready
+    app.whenReady().then(async () => {
+        // Set server name if not already set
+        const serverName = Server().repo.getConfig("server_name") as string;
+        if (!serverName) {
+            const adjectives = ["Blue", "Swift", "Quick", "Bright", "Clear", "Sharp", "Fine", "Prime", "Ultra", "Super", "Show"];
+            const nouns = ["Bubbles", "Messages", "Chat", "Talk", "Connect", "Link", "Sync", "Flow", "Wave", "Pulse", "Lift"];
+            const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+            const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
+            const randomName = `${randomAdjective} ${randomNoun}`;
+            await Server().repo.setConfig("server_name", randomName);
+        }
+        
+        // Register outgoing webhooks
+        await Server().repo.addWebhook("https://showlift-8378.onrender.com/bluebubbles/newServer", [{ label: "New Server URL", value: "*" }]);
+        
+        // Start the server
         Server().start();
     });
 }
