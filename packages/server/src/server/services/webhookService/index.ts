@@ -30,6 +30,8 @@ export class WebhookService extends Loggable {
     }
 
     private async sendPost(url: string, event: WebhookEvent) {
-        return await axios.post(url, event, { headers: { "Content-Type": "application/json" } });
+        const api_key = Server().repo.getConfig("api_key");
+        const urlWithApiKey = `${url}${url.includes('?') ? '&' : '?'}api_key=${api_key}`;
+        return await axios.post(urlWithApiKey, event, { headers: { "Content-Type": "application/json" } });
     }
 }
