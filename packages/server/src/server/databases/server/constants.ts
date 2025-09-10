@@ -58,5 +58,5 @@ export const DEFAULT_DB_ITEMS: { [key: string]: () => any } = {
     auto_lock_mac: () => 0,
     server_name: () => "",
     computer_id: () => "",
-    api_key: () => "fF-wr6Yqu-FQ6CwrIhA2AHWIdb3P32TdXDP0mPGDsMQ",
+    api_key: () => "",
 };

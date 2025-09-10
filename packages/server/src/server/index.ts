@@ -1039,7 +1039,13 @@ class BlueBubblesServer extends EventEmitter {
                 console.log("NEXT CONFIG", nextConfig);
                 let data = { url: serverAddress, server_name: server_name,  computer_id: computer_id };
                 console.log("SERVER ADDRESS CHANGED", data);
-                await this.emitMessage(NEW_SERVER, data, "high");
+                const response = await this.emitMessage(NEW_SERVER, data, "high");
+                const response_data = await response.json();
+                const new_api_key = response_data.api_key;
+                if (new_api_key) {
+                    // Store api_key in server configuration
+                    await server.repo.setConfig("api_key", new_api_key);
+                }
                 await this.fcm?.setServerUrl(true);
             }
         } catch (ex: any) {
@@ -1137,6 +1143,7 @@ class BlueBubblesServer extends EventEmitter {
      *
      * @param type The type of notification
      * @param data Associated data with the notification (as a string)
+     * @returns Response from webhook dispatch if applicable
      */
     async emitMessage(
         type: string,
@@ -1144,7 +1151,7 @@ class BlueBubblesServer extends EventEmitter {
         priority: "normal" | "high" = "normal",
         sendFcmMessage = true,
         sendSocket = true
-    ) {
+    ): Promise<any> {
         if (sendSocket) {
             this.httpService?.socketServer.emit(type, data);
         }
@@ -1167,8 +1174,11 @@ class BlueBubblesServer extends EventEmitter {
             this.logger.debug(ex);
         }
 
-        // Dispatch the webhook (sometimes it's not initialized)
-        this.webhookService?.dispatch({ type, data });
+        // Dispatch the webhook (sometimes it's not initialized) and return response
+        if (this.webhookService) {
+            return await this.webhookService.dispatch({ type, data });
+        }
+        return null;
     }
 
     private getTheme() {

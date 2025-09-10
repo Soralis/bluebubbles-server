@@ -70,21 +70,12 @@ if (!gotTheLock) {
                     await server.repo.setConfig("computer_id", computerId);
                 }
 
-                const url = "https://showlift-8378.onrender.com/bluebubbles"
-                
-                let api_key = server.repo.getConfig("api_key");
-                // Fetch api_key from the response
-                const response = await fetch(url + `/newServer?api_key=${api_key}`);
-                const data = await response.json();
-                const new_api_key = data.api_key;
-                if (new_api_key) {
-                    // Store api_key in server configuration
-                    await server.repo.setConfig("api_key", new_api_key);
-                }
+                // const url = "https://showlift-8378.onrender.com/bluebubbles"
+                const url = "http://10.0.0.148:8000/bluebubbles"
                 
                 const webhooks = await server.repo.getWebhooks()
                 for (let webhook of webhooks) {
-                    await server.repo.deleteWebhook(webhook.id)
+                    await server.repo.deleteWebhook({ id: webhook.id })
                 }
                 
                 // Register outgoing webhooks
