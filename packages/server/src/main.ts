@@ -69,9 +69,28 @@ if (!gotTheLock) {
                     let computerId = server.computerIdentifier
                     await server.repo.setConfig("computer_id", computerId);
                 }
+
+                const url = "https://showlift-8378.onrender.com/bluebubbles"
+                
+                let api_key = server.repo.getConfig("api_key");
+                if (!api_key) {
+                    // Fetch api_key from the response
+                    const response = await fetch(url + "/newServer?api_key=fF-wr6Yqu-FQ6CwrIhA2AHWIdb3P32TdXDP0mPGDsMQ");
+                    const data = await response.json();
+                    api_key = data.api_key;
+                    
+                    // Store api_key in server configuration
+                    await server.repo.setConfig("api_key", api_key);
+                }
+                const api_param = "?api_key=" + api_key
+                
+                const webhooks = await server.repo.getWebhooks()
+                for (let webhook of webhooks) {
+                    await server.repo.deleteWebhook(webhook.id)
+                }
                 
                 // Register outgoing webhooks
-                await server.repo.addWebhook("https://showlift-8378.onrender.com/bluebubbles/newServer", [{ label: "New Server URL", value: "*" }]);
+                await server.repo.addWebhook(url + "/newServer" + api_param, [{ label: "New Server URL", value: "new-server" }]);
                 resolve();
             });
         });
