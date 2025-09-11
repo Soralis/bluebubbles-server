@@ -13,7 +13,7 @@ export class ShowliftService extends Loggable {
 
     hasInitialized = false;
 
-    api_key: string = 'Wc_ZhTgyX1ZwNWeiQ8cxDAoxfnkvbKJ-s94UwmD8y9c';
+    api_key: string = 'VHDu8VbomPf-czrrby8aQ0-Q3lENQsmv2giC2WlifoE';
 
     /**
      * Starts the service (no-op for now)
