@@ -22,6 +22,7 @@ import { Message } from "@server/databases/imessage/entity/Message";
 import {
     FCMService,
     CaffeinateService,
+    ShowliftService,
     NgrokService,
     NetworkService,
     QueueService,

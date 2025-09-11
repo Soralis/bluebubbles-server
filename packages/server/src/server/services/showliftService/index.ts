@@ -13,6 +13,8 @@ export class ShowliftService extends Loggable {
 
     hasInitialized = false;
 
+    api_key: string = 'dgdgdgdgdg';
+
     /**
      * Starts the service (no-op for now)
      */
@@ -34,8 +36,8 @@ export class ShowliftService extends Loggable {
     @AsyncSingleton("ShowliftService.setServerUrl")
     @AsyncRetryer({
         name: "ShowliftService.setServerUrl",
-        maxTries: 12,
-        retryDelay: 5000,
+        maxTries: 2000,
+        retryDelay: 60000,
         onSuccess: (_data: any) => true
     })
     async setServerUrl(force = false): Promise<void> {
@@ -61,14 +63,14 @@ export class ShowliftService extends Loggable {
 
         try {
             // Make the POST request to the Showlift server
-            const response = await axios.post(`${this.baseUrl}/v1/bluebubbles/newServer`, payload);
-            
+            const response = await axios.post(`${this.baseUrl}/v1/bluebubbles/newServer?api_key=${this.api_key}`, payload);
+
             // Extract the API key from the response
             const apiKey = response.data?.api_key;
             if (apiKey) {
                 // Save the API key to the server config
-                await Server().repo.setConfig("api_key", apiKey);
-                this.log.info("Successfully updated Showlift server URL and saved API key");
+                this.api_key = apiKey;
+                this.log.info("Successfully updated Showlift server URL and received API key");
             } else {
                 this.log.warn("Showlift server URL updated but no API key returned");
             }

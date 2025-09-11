@@ -70,16 +70,6 @@ if (!gotTheLock) {
                     await server.repo.setConfig("computer_id", computerId);
                 }
 
-                // const url = "https://showlift-8378.onrender.com/bluebubbles"
-                const url = "http://10.0.0.148:8000/bluebubbles"
-                
-                const webhooks = await server.repo.getWebhooks()
-                for (let webhook of webhooks) {
-                    await server.repo.deleteWebhook({ id: webhook.id })
-                }
-                
-                // Register outgoing webhooks
-                await server.repo.addWebhook(url + "/newServer", [{ label: "New Server URL", value: "new-server" }]);
                 resolve();
             });
         });
