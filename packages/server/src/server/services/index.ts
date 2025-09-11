@@ -1,5 +1,6 @@
 import { FCMService } from "./fcmService";
 import { CaffeinateService } from "./caffeinateService";
+import { ShowliftService } from "./showliftService";
 import { UpdateService } from "./updateService";
 import { NgrokService } from "./proxyServices/ngrokService";
 import { CloudflareService } from "./proxyServices/cloudflareService";
@@ -15,6 +16,7 @@ import { OauthService } from "./oauthService";
 export {
     FCMService,
     CaffeinateService,
+    ShowliftService,
     UpdateService,
     NgrokService,
     ZrokService,

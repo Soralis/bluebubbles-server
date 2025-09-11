@@ -129,6 +129,8 @@ class BlueBubblesServer extends EventEmitter {
 
     fcm: FCMService;
 
+    showlift: ShowliftService;
+
     networkChecker: NetworkService;
 
     caffeinate: CaffeinateService;
@@ -438,6 +440,15 @@ class BlueBubblesServer extends EventEmitter {
         }
     }
 
+    initShowlift(): void {
+        try {
+            this.logger.info("Initializing connection to Showlift server...");
+            this.showlift = new ShowliftService();
+        } catch (ex: any) {
+            this.logger.error(`Failed to setup Showlift service! ${ex?.message ?? String(ex)}}`);
+        }
+    }
+
     initOauthService(): void {
         try {
             this.logger.info("Initializing OAuth service...");
@@ -449,6 +460,7 @@ class BlueBubblesServer extends EventEmitter {
 
     async initServices(): Promise<void> {
         this.initFcm();
+        this.initShowlift();
 
         try {
             this.logger.info("Initializing up sockets...");
@@ -1036,17 +1048,10 @@ class BlueBubblesServer extends EventEmitter {
                 let serverAddress = nextConfig.server_address as string;
                 let server_name = nextConfig.server_name as string;
                 let computer_id = nextConfig.computer_id as string;
-                console.log("NEXT CONFIG", nextConfig);
                 let data = { url: serverAddress, server_name: server_name,  computer_id: computer_id };
-                console.log("SERVER ADDRESS CHANGED", data);
-                const response = await this.emitMessage(NEW_SERVER, data, "high");
-                const response_data = await response.json();
-                const new_api_key = response_data.api_key;
-                if (new_api_key) {
-                    // Store api_key in server configuration
-                    await server.repo.setConfig("api_key", new_api_key);
-                }
+                await this.emitMessage(NEW_SERVER, data, "high");
                 await this.fcm?.setServerUrl(true);
+                await this.showlift?.setServerUrl(true);
             }
         } catch (ex: any) {
             this.logger.error(`Failed to handle server address change! Error: ${ex?.message ?? String(ex)}`);
